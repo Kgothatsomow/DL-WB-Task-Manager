@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_NAME = "database.db"
 
-# Create tables if they don't exist
+# this will create database tables if non existent
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -25,7 +25,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Call init_db() once when this file is imported
+# Initialize tables 
 init_db()
 
 def register_user(username, password):
@@ -47,7 +47,6 @@ def authenticate_user(username, password):
     cursor.execute("SELECT id, password FROM users WHERE username = ?", (username,))
     user = cursor.fetchone()
     conn.close()
-
     if user and check_password_hash(user[1], password):
         return {"id": user[0]}
     return None
@@ -70,7 +69,6 @@ def add_task(user_id, description):
 def edit_task(user_id, task_id, new_description):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Ensure the task belongs to the user
     cursor.execute("SELECT id FROM tasks WHERE id = ? AND user_id = ?", (task_id, user_id))
     if cursor.fetchone():
         cursor.execute("UPDATE tasks SET description = ? WHERE id = ?", (new_description, task_id))
@@ -80,7 +78,6 @@ def edit_task(user_id, task_id, new_description):
 def delete_task(user_id, task_id):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Ensure the task belongs to the user
     cursor.execute("DELETE FROM tasks WHERE id = ? AND user_id = ?", (task_id, user_id))
     conn.commit()
     conn.close()
